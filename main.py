@@ -168,7 +168,7 @@ components.html(
         })
     </script>
     """,
-    height=2000,  # Increased fixed height to a very generous amount
+    height=3500,  # Increased fixed height to a very generous amount
     scrolling=True
 )
 
