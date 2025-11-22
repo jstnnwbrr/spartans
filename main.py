@@ -150,9 +150,6 @@ if os.path.exists(logo_path):
 else:
     st.title("⚾ NM Spartans Baseball")
 
-st.header("📅 Team Schedule")
-st.markdown("Upcoming games and events.")
-
 df = load_data()
 
 if df.empty:
