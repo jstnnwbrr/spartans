@@ -96,7 +96,7 @@ def get_development_feedback(row):
     # --- Batting Feedback ---
     if row['PA'] > 10:  # Only generate if enough plate appearances
         # Contact Logic
-        if row['SO%'] > 0.25:
+        if row['SO%'] > 25:
             feedback.append(("⚠️ High Strikeout Rate", 
                              f"Strikeout rate is {row['SO']/row['PA']:.1%}. Focus on head discipline, starting with hands back, and shortening the swing."))
         
