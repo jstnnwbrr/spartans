@@ -23,22 +23,55 @@ def load_data():
         if os.path.exists(filename):
             # GameChanger CSVs usually have the category headers in row 0 and actual column names in row 1
             try:
+                # GameChanger CSVs have headers in row 1. 
+                # Pandas handles duplicate columns (like SB, CS) by adding .1, .2 suffix.
+                # Standard GC Order: Batting -> Pitching -> Fielding
                 df = pd.read_csv(filename, header=1)
+                
+                # Rename Duplicate Columns for Clarity
+                # We need to explicitly handle Pitching vs Batting stats (e.g., BB, SO appear twice)
+                rename_map = {
+                    # Pitching Duplicates (usually .1)
+                    'BB.1': 'BB_Pitch', 'SO.1': 'SO_Pitch', 'H.1': 'H_Pitch', 'R.1': 'R_Pitch',
+                    'SB.1': 'SB_Pitch', 'CS.1': 'CS_Pitch', 'PIK.1': 'PIK_Pitch',
+                    
+                    # Fielding/Catching Duplicates (usually .2)
+                    'SB.2': 'SB_Catch', 'CS.2': 'CS_Catch', 'PIK.2': 'PIK_Catch',
+                    'INN': 'INN_Catch', 'PB': 'PB'
+                }
+                df.rename(columns=rename_map, inplace=True)
                 
                 # Basic cleaning
                 df['Season'] = season_name
                 
-                # Ensure numeric conversion for stats, coercing errors to 0
-                cols_to_numeric = ['AVG', 'OBP', 'SLG', 'OPS', 'PA', 'AB', 'H', 'BB', 'SO', 'QAB%', 
-                                   'ERA', 'WHIP', 'IP', 'FPCT', 'BA/RISP', 'BB/K', 'SB']
-                
+                # Ensure numeric conversion for stats
+                cols_to_numeric = [
+                    'AVG', 'OBP', 'SLG', 'OPS', 'PA', 'AB', 'H', 'BB', 'SO', 'QAB%', 
+                    'ERA', 'WHIP', 'IP', 'FPCT', 'BA/RISP', 'SB', 
+                    'INN_Catch', 'PB', 'SB_Catch', 'CS_Catch',
+                    'BB_Pitch', 'SO_Pitch', 'H_Pitch', 'R_Pitch'
+                ]
+
                 for col in df.columns:
-                    if col in cols_to_numeric or col not in ['Number', 'Last', 'First', 'Season']:
+                    if col in cols_to_numeric or col not in ['Number', 'Last', 'First', 'Season', 'Full Name']:
                         df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
                 
                 # Create a Full Name column
                 df['Full Name'] = df['First'] + " " + df['Last']
                 
+                # Strikeout Percentage (avoid division by zero)
+                df['SO%'] = df.apply(lambda x: (x['SO'] / x['PA'] * 100) if x['PA'] > 0 else 0, axis=1)
+
+                # Catcher Caught Stealing % (CS%)
+                # Formula: CS / (SB_Allowed + CS)
+                def calc_cs_pct(row):
+                    if 'SB_Catch' in row and 'CS_Catch' in row:
+                        total_attempts = row['SB_Catch'] + row['CS_Catch']
+                        return (row['CS_Catch'] / total_attempts * 100) if total_attempts > 0 else 0
+                    return 0
+                
+                df['CS%_Catch'] = df.apply(calc_cs_pct, axis=1)
+
                 # Filter out empty rows or footer info
                 df = df[df['First'].notna()]
                 
@@ -57,7 +90,7 @@ def get_development_feedback(row):
     # --- Batting Feedback ---
     if row['PA'] > 10:  # Only generate if enough plate appearances
         # Contact Logic
-        if row['SO'] / row['PA'] > 0.25:
+        if row['SO%'] > 0.25:
             feedback.append(("⚠️ High Strikeout Rate", 
                              f"Strikeout rate is {row['SO']/row['PA']:.1%}. Focus on two-strike approach and shortening the swing."))
         
@@ -84,6 +117,18 @@ def get_development_feedback(row):
         if row['WHIP'] > 1.8:
             feedback.append(("🛡️ Run Prevention", 
                              "WHIP is high. Focus on getting the first batter of the inning out to reduce traffic on base."))
+
+    # --- Catching Feedback ---
+    # Check if 'INN_Catch' exists and is greater than 0
+    if 'INN_Catch' in row and row['INN_Catch'] > 5:
+        if row['PB'] > (row['INN_Catch'] * 0.2): # More than 1 PB every 5 innings
+            feedback.append(("🧱 Catcher Blocking", 
+                             f"High Passed Ball rate ({row['PB']} in {row['INN_Catch']} innings). Focus on blocking drills and softer hands receiving."))
+        
+        total_attempts = row.get('SB_Catch', 0) + row.get('CS_Catch', 0)
+        if total_attempts >= 5 and row['CS%_Catch'] < 15:
+             feedback.append(("💪 Catcher Throwing", 
+                              f"Caught Stealing % is low ({row['CS%_Catch']:.1f}%). Work on transfer speed, footwork, and arm strength."))
 
     if not feedback:
         feedback.append(("✅ On Track", "Stats look solid across the board. Keep maintaining current training routine."))
@@ -116,20 +161,55 @@ else:
         if season_df.empty:
             st.error(f"No data found for {latest_season}")
         else:
-            # --- 1. Summary Stats Table ---
-            st.subheader("📊 Team Statistics")
+            # --- 1. Batting Leaders ---
+            st.subheader("⚔️ Offensive Leaders")
+            bat_cols = ['Full Name', 'GP', 'PA', 'AVG', 'OPS', 'QAB%', 'SO%', 'H', 'RBI']
+            display_bat = [c for c in bat_cols if c in season_df.columns]
             
-            # Select key columns for a clean summary view
-            key_cols = ['Full Name', 'GP', 'PA', 'AVG', 'OPS', 'QAB%', 'H', 'RBI', 'SO', 'ERA', 'IP']
-            # Only include columns that actually exist in the dataframe
-            display_cols = [c for c in key_cols if c in season_df.columns]
-            
-            # Display table sorted by OPS by default
             st.dataframe(
-                season_df[display_cols].sort_values(by='OPS', ascending=False).set_index('Full Name'),
-                use_container_width=True,
-                height=400
+                season_df[display_bat].sort_values(by='OPS', ascending=False).set_index('Full Name').style.format({"SO%": "{:.1f}%", "QAB%": "{:.1f}%", "AVG": "{:.3f}", "OPS": "{:.3f}"}),
+                use_container_width=True
             )
+
+            st.info("GP=Games played, PA=Plate Appearances, AVG=Batting Average, OPS=On-base Plus Slugging, QAB%=Quality At-Bats %, SO%=Strikeout %, H=Hits, RBI=Runs Batted In")
+
+            # --- 2. Pitching Leaders ---
+            st.divider()
+            st.subheader("⚾ Pitching Staff")
+            pitch_df = season_df[season_df['IP'] > 0].copy()
+            
+            if not pitch_df.empty:
+                # Define pitch columns (using renamed columns)
+                pitch_cols = ['Full Name', 'IP', 'ERA', 'WHIP', 'SO_Pitch', 'BB_Pitch', 'H_Pitch']
+                display_pitch = [c for c in pitch_cols if c in pitch_df.columns]
+                
+                st.dataframe(
+                    pitch_df[display_pitch].sort_values(by='ERA', ascending=True).set_index('Full Name').style.format({"ERA": "{:.2f}", "WHIP": "{:.2f}", "IP": "{:.1f}"}),
+                    use_container_width=True
+                )
+
+                st.info("IP=Innings Pitched, ERA=Earned Run Average, WHIP=Walks plus Hits per Inning Pitched, SO_Pitch=Strikeouts Pitched, BB_Pitch=Walks Pitched, H_Pitch=Hits Allowed")
+            else:
+                st.info("No pitching stats recorded for this season.")
+
+            # --- 3. Catcher Leaderboard ---
+            st.divider()
+            st.subheader("🧱 Catcher Leaderboard")
+            if 'INN_Catch' in season_df.columns:
+                catchers_df = season_df[season_df['INN_Catch'] > 0].copy()
+                
+                if not catchers_df.empty:
+                    catch_cols = ['Full Name', 'INN_Catch', 'PB', 'SB_Catch', 'CS_Catch', 'CS%_Catch', 'FPCT']
+                    c_display = [c for c in catch_cols if c in catchers_df.columns]
+                    
+                    st.dataframe(
+                        catchers_df[c_display].sort_values(by='INN_Catch', ascending=False).set_index('Full Name').style.format({"CS%_Catch": "{:.1f}%", "FPCT": "{:.3f}"}),
+                        use_container_width=True
+                    )
+
+                    st.info("INN_Catch=Innings Caught, PB=Passed Balls Allowed, SB_Catch=Stolen Bases Allowed, CS_Catch=Caught Stealing, CS%_Catch=Caught Stealing Percentage, FPCT=Fielding Percentage")
+                else:
+                    st.info("No catcher stats recorded for this season.")
             
             # --- 2. Radar Charts Grid ---
             st.divider()
@@ -209,7 +289,8 @@ else:
         
         # Filter Data
         player_stats = df[df['Full Name'] == selected_player].sort_values(by='Season')
-        
+        latest = player_stats.iloc[-1]
+
         # --- Header Section ---
         col1, col2 = st.columns([1, 3])
         with col1:
@@ -217,7 +298,6 @@ else:
             st.caption(f"Data Points: {len(player_stats)} Seasons")
         with col2:
             # Metric Cards (Most Recent Season)
-            latest = player_stats.iloc[-1]
             m1, m2, m3, m4 = st.columns(4)
             m1.metric("Current AVG", f"{latest['AVG']:.3f}")
             m2.metric("Current OPS", f"{latest['OPS']:.3f}")
@@ -282,24 +362,60 @@ else:
         # --- Statistical Trends ---
         st.header("📈 Seasonal Progression")
         
-        tab1, tab2, tab3 = st.tabs(["Batting Trends", "Pitching Trends", "Raw Data"])
+        # Check if player has catching stats to determine tabs
+        has_catching = player_stats['INN_Catch'].sum() > 0
+        tabs = ["Batting Trends", "Pitching Trends"]
+        if has_catching:
+            tabs.append("Catching Trends")
+        tabs.append("Raw Data")
         
-        with tab1:
+        tab_objs = st.tabs(tabs)
+
+        # Tab 1: Batting
+        with tab_objs[0]:
             fig_bat = px.line(player_stats, x='Season', y=['AVG', 'OBP', 'OPS', 'SLG'], 
                               markers=True, title="Hitting Metrics Over Time")
             st.plotly_chart(fig_bat, use_container_width=True)
             
-            fig_disc = px.bar(player_stats, x='Season', y=['QAB%', 'SO'], 
-                              barmode='group', title="Discipline: Quality At-Bats % vs Strikeouts (Count)")
+            fig_disc = px.bar(player_stats, x='Season', y=['QAB%', 'SO%'], 
+                              barmode='group', title="Discipline: Quality At-Bats % vs Strikeout %")
+            fig_disc.update_yaxes(title_text="Percentage (%)")
             st.plotly_chart(fig_disc, use_container_width=True)
+            st.info("AVG=Batting Average, OBP=On-base Percentage, OPS=On-base Plus Slugging, SLG=Slugging Percentage, QAB%=Quality At-Bats %, SO%=Strikeout %")
 
-        with tab2:
+        # Tab 2: Pitching
+        with tab_objs[1]:
             if player_stats['IP'].sum() > 0:
                 fig_pitch = px.line(player_stats, x='Season', y=['ERA', 'WHIP'], 
                                     markers=True, title="ERA & WHIP Progression")
                 st.plotly_chart(fig_pitch, use_container_width=True)
+                st.info("ERA=Earned Run Average, WHIP=Walks plus Hits per Inning Pitched, IP=Innings Pitched")
             else:
                 st.write("No pitching stats available for this player.")
 
-        with tab3:
+        # Tab 3: Catching
+        if has_catching:
+            with tab_objs[2]:
+                st.subheader("🛡️ Behind the Dish")
+                c1, c2, c3 = st.columns(3)
+                total_inn = player_stats['INN_Catch'].sum()
+                total_pb = player_stats['PB'].sum()
+                
+                # Calculate aggregates
+                total_sb_allowed = player_stats['SB_Catch'].sum()
+                total_cs = player_stats['CS_Catch'].sum()
+                total_att = total_sb_allowed + total_cs
+                career_cs_pct = (total_cs / total_att * 100) if total_att > 0 else 0
+                
+                c1.metric("Innings Caught", f"{total_inn}")
+                c2.metric("Total Passed Balls", f"{total_pb}")
+                c3.metric("Caught Stealing %", f"{career_cs_pct:.1f}%")
+                
+                fig_catch = px.bar(player_stats, x='Season', y=['PB', 'SB_Catch', 'CS_Catch'],
+                                   barmode='group', title="Defensive Breakdown (Count)")
+                st.plotly_chart(fig_catch, use_container_width=True)
+                st.info("PB=Passed Balls Allowed, SB_Catch=Stolen Bases Allowed, CS_Catch=Caught Stealing")
+        
+        # Raw Data Tab
+        with tab_objs[-1]:
             st.dataframe(player_stats)
