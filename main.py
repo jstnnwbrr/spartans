@@ -46,7 +46,7 @@ def load_data():
                 
                 # Ensure numeric conversion for stats
                 cols_to_numeric = [
-                    'AVG', 'OBP', 'SLG', 'OPS', 'PA', 'AB', 'H', '1B', '2B', '3B', 'HR', 'BB', 'SO', 'QAB%', 
+                    'AVG', 'OBP', 'SLG', 'OPS', 'PA', 'AB', 'H', '1B', '2B', '3B', 'HR', 'BB', 'SO', 'QAB%', 'K-L',
                     'ERA', 'WHIP', 'IP', 'TC', 'A', 'PO', 'FPCT', 'E', 'BA/RISP', 'SB', 
                     'INN_Catch', 'PB', 'SB_Catch', 'CS_Catch',
                     'BB_Pitch', 'SO_Pitch', 'H_Pitch', 'R_Pitch'
@@ -98,32 +98,37 @@ def get_development_feedback(row):
         # Contact Logic
         if row['SO%'] > 0.25:
             feedback.append(("⚠️ High Strikeout Rate", 
-                             f"Strikeout rate is {row['SO']/row['PA']:.1%}. Focus on two-strike approach and shortening the swing."))
+                             f"Strikeout rate is {row['SO']/row['PA']:.1%}. Focus on head discipline, starting with hands back, and shortening the swing."))
         
         # Plate Discipline
         if row['QAB%'] < 40:
             feedback.append(("⚠️ Quality At-Bats", 
-                             f"QAB% is {row['QAB%']}%. Needs to extend at-bats, foul off tough pitches, and draw more walks."))
+                             f"QAB% is {row['QAB%']}%. Regardless of whether your batting average shows it, you can improve your Quality At-Bats percentage by extending at-bats, fouling off tough pitches, and drawing more walks. Even small improvements here will increase your offensive contributions to the team."))
         
         # Power vs Contact
         if row['SLG'] < row['OBP'] and row['AVG'] > .250:
              feedback.append(("ℹ️ Power Potential", 
-                              "Good on-base skills, but Slugging is lower than OBP. Look to drive the ball into gaps rather than just making contact."))
+                              "Good on-base skills, but Slugging is lower than OBP. Focus on keeping hands back to create power sooner while maintaining head discipline to see the ball. As you further develop your skills, look to drive the ball into gaps rather than just making contact."))
 
         # Clutch
         if 'BA/RISP' in row and row['BA/RISP'] < (row['AVG'] - 0.050):
             feedback.append(("🧠 Mental Game", 
-                             f"Batting Average drops with Runners in Scoring Position ({row['BA/RISP']:.3f} vs {row['AVG']:.3f}). Work on mental approach in high-pressure spots."))
+                             f"Batting Average drops with Runners in Scoring Position (RISP) ({row['BA/RISP']:.3f} vs {row['AVG']:.3f}). Work on mental approach in high-pressure spots - take a deep breath and reset your mindset. Try stepping out briefly and count backwards from five. 5-4-3-2-1, go!"))
+
+        # Overly Cautious at the Plate
+        if row['K-L'] > (row['PA'] * 0.07): # More than 7% strikeouts looking
+            feedback.append(("🔍 Overly Cautious at the Plate", 
+                             f"Strikeouts Looking (K-L) rate is {row['K-L']/row['PA']:.1%}. Change your mindset and develop your will to fight for your team at the plate - if you're already striking out looking, how much worse could strikeout swinging be? Hits are made on swings!"))
 
     # --- Fielding Feedback ---
     if row['TC'] > 50: # Only generate if enough chances
         if row['FPCT'] < 0.950:
             feedback.append(("🛡️ Fielding Fundamentals", 
-                             f"Fielding Percentage is {row['FPCT']:.3f}. Emphasize footwork, glove work, and throwing accuracy during practice."))
+                             f"Fielding Percentage is {row['FPCT']:.3f}. Emphasize footwork, glove work, and throwing accuracy during practice. Once you field the ball, look up and establish eye contact with your target as early as possible and well before the ball leaves your hand."))
 
         if row['E%'] > 5:
             feedback.append(("🚫 Error Reduction", 
-                             f"Error % is {row['E%']:.1f}%. Focus on consistent mechanics and situational awareness to reduce errors."))
+                             f"Error % is {row['E%']:.1f}%. Focus on consistent mechanics and situational awareness to reduce errors. Commmunicate with your teammates, and, if you call it, it's now on you to own the outcome for better or worse."))
 
     # --- Pitching Feedback ---
     if row['IP'] > 5:
@@ -132,38 +137,19 @@ def get_development_feedback(row):
                              f"Walking {row['BB']/row['IP']:.1f} batters per inning. Bullpen sessions should focus strictly on fastball command."))
         if row['WHIP'] > 1.8:
             feedback.append(("🛡️ Run Prevention", 
-                             "WHIP is high. Focus on getting the first batter of the inning out to reduce traffic on base."))
+                             "Walks plus Hits per Inning Pitched (WHIP) is high. Focus on one batter at a time but especially on getting the first batter of the inning out to reduce traffic on base."))
 
     # --- Catching Feedback ---
     # Check if 'INN_Catch' exists and is greater than 0
     if 'INN_Catch' in row and row['INN_Catch'] > 5:
         if row['PB'] > (row['INN_Catch'] * 0.2): # More than 1 PB every 5 innings
             feedback.append(("🧱 Catcher Blocking", 
-                             f"High Passed Ball rate ({row['PB']} in {row['INN_Catch']} innings). Focus on blocking drills and softer hands receiving."))
+                             f"High Passed Ball rate ({row['PB']} in {row['INN_Catch']} innings). Focus on blocking drills and softer hands receiving. Take a deep breath in prior to the pitch and focus on keeping eyes open as the ball approaches to better track its trajectory and execute your block."))
         
         total_attempts = row.get('SB_Catch', 0) + row.get('CS_Catch', 0)
         if total_attempts >= 5 and row['CS%_Catch'] < 15:
              feedback.append(("💪 Catcher Throwing", 
-                              f"Caught Stealing % is low ({row['CS%_Catch']:.1f}%). Work on transfer speed, footwork, and arm strength."))
-
-    if not feedback:
-        feedback.append(("✅ On Track", "Stats look solid across the board. Keep maintaining current training routine."))
-        
-    return feedback
-
-# --- Main Layout ---
-# Header with Logo Support
-logo_path = "logo.png"
-
-# Create two columns for Logo + Title if logo exists
-if os.path.exists(logo_path):
-    col_logo, col_title = st.columns([1, 5])
-    with col_logo:
-        st.image(logo_path, width='stretch')
-    with col_title:
-        st.title("⚾ NM Spartans Baseball")
-else:
-    st.title("⚾ NM Spartans Baseball")
+                              f"Caught Stealing % is low ({row['CS%_Catch']:.1f}%). Work on transfer speed, footwork, and arm strength. Be sure to fully step toward the target while maintaining eye contact and execute a full follow-through motion towards the glove of your infielder. Also develop your risk-reward decision making mindset - if you have it, take it! But also consider that a quick off-target throw is ALWAYS worse than a well-placed late throw."))
 
 df = load_data()
 
@@ -190,16 +176,15 @@ else:
         else:
             # --- 1. Batting ---
             st.subheader("⚔️ Batting")
-            bat_cols = ['Full Name', 'GP', 'PA', 'H', 'AVG', 'OBP', 'OPS', 'SLG', 'QAB%', '1B', '2B', '3B', 'HR', 'RBI', 'SO%']
+            bat_cols = ['Full Name', 'GP', 'PA', 'H', 'AVG', 'OBP', 'OPS', 'SLG', 'QAB%', '1B', '2B', '3B', 'HR', 'RBI', 'BB', 'K-L', 'SO%']
             display_bat = [c for c in bat_cols if c in season_df.columns]
             
             st.dataframe(
-                season_df[display_bat].sort_values(by='OPS', ascending=False).set_index('Full Name').style.format({"GP": "{:.0f}", "PA": "{:.0f}", "H": "{:.0f}", "AVG": "{:.3f}", "OBP": "{:.3f}", "OPS": "{:.3f}", "SLG": "{:.3f}", "QAB%": "{:.1f}%", "1B": "{:.0f}", "2B": "{:.0f}", "3B": "{:.0f}", "HR": "{:.0f}", "RBI": "{:.0f}", "SO%": "{:.1f}%"}),
+                season_df[display_bat].sort_values(by='OPS', ascending=False).set_index('Full Name').style.format({"GP": "{:.0f}", "PA": "{:.0f}", "H": "{:.0f}", "AVG": "{:.3f}", "OBP": "{:.3f}", "OPS": "{:.3f}", "SLG": "{:.3f}", "QAB%": "{:.1f}%", "1B": "{:.0f}", "2B": "{:.0f}", "3B": "{:.0f}", "HR": "{:.0f}", "RBI": "{:.0f}", "BB": "{:.0f}", "K-L": "{:.0f}", "SO%": "{:.1f}%"}),
                 width='stretch', height=500
             )
 
-            st.info("GP=Games played,  PA=Plate Appearances,  H=Hits,  AVG=Batting Average,  OBP=On-base Percentage,  OPS=On-base Plus Slugging,  SLG=Slugging Percentage,  QAB%=Quality At-Bats %,  1B=Singles, 2B=Doubles, 3B=Triples, HR=Home Runs, RBI=Runs Batted In, SO%=Strikeout %")
-
+            st.info("GP=Games played,  PA=Plate Appearances,  H=Hits,  AVG=Batting Average,  OBP=On-base Percentage,  OPS=On-base Plus Slugging,  SLG=Slugging Percentage,  QAB%=Quality At-Bats %,  1B=Singles, 2B=Doubles, 3B=Triples, HR=Home Runs, RBI=Runs Batted In, BB=Walks, K-L=Strikeouts Looking, SO%=Strikeout %")
             # --- 3. Fielding ---
             st.divider()
             st.subheader("🛡️ Fielding")
