@@ -6,7 +6,7 @@ import streamlit.components.v1 as components
 import os
 
 # --- Configuration ---
-st.set_page_config(page_title="Spartans Player Development", layout="wide")
+st.set_page_config(page_title="NM Spartans", layout="wide")
 
 # --- Helper Functions ---
 @st.cache_data
@@ -146,9 +146,9 @@ if os.path.exists(logo_path):
     with col_logo:
         st.image(logo_path, use_container_width=True)
     with col_title:
-        st.title("⚾ NM Spartans Development Dashboard")
+        st.title("⚾ NM Spartans Baseball")
 else:
-    st.title("⚾ NM Spartans Development Dashboard")
+    st.title("⚾ NM Spartans Baseball")
 
 st.header("📅 Team Schedule")
 st.markdown("Upcoming games and events.")
@@ -163,11 +163,11 @@ components.html(
         window.GC.team.schedule.init({
         target: "#gc-schedule-widget-m1yl",
         widgetId: "8186ee09-5d4e-412d-bcb4-1a2375c6cf9d",
-        maxVerticalGamesVisible: 4,
+        maxVerticalGamesVisible: 8,
         })
     </script>
     """,
-    height=600,  # Set ample height to accommodate vertical list
+    height=1200,  # Set ample height to accommodate vertical list
     scrolling=True
 )
 
@@ -186,7 +186,7 @@ else:
     # VIEW 1: TEAM SUMMARY
     # ==========================================
     if view_mode == "Team Summary":
-        st.header(f"Team Overview: {latest_season}")
+        st.header(f"Team Stats Overview: {latest_season}")
         
         # Get Data for latest season
         season_df = df[df['Season'] == latest_season].copy()
