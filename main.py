@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import streamlit.components.v1 as components
 import os
 
 # --- Configuration ---
@@ -148,6 +149,27 @@ if os.path.exists(logo_path):
         st.title("⚾ NM Spartans Development Dashboard")
 else:
     st.title("⚾ NM Spartans Development Dashboard")
+
+st.header("📅 Team Schedule")
+st.markdown("Upcoming games and events.")
+
+# GameChanger Widget Embed
+components.html(
+    """
+    <div id="gc-schedule-widget-m1yl"></div>
+
+    <script src="https://widgets.gc.com/static/js/sdk.v1.js"></script>
+    <script>
+        window.GC.team.schedule.init({
+        target: "#gc-schedule-widget-m1yl",
+        widgetId: "8186ee09-5d4e-412d-bcb4-1a2375c6cf9d",
+        maxVerticalGamesVisible: 4,
+        })
+    </script>
+    """,
+    height=600,  # Set ample height to accommodate vertical list
+    scrolling=True
+)
 
 df = load_data()
 
