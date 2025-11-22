@@ -151,6 +151,26 @@ def get_development_feedback(row):
              feedback.append(("💪 Catcher Throwing", 
                               f"Caught Stealing % is low ({row['CS%_Catch']:.1f}%). Work on transfer speed, footwork, and arm strength. Be sure to fully step toward the target while maintaining eye contact and execute a full follow-through motion towards the glove of your infielder. Also develop your risk-reward decision making mindset - if you have it, take it! But also consider that a quick off-target throw is ALWAYS worse than a well-placed late throw."))
 
+    if not feedback:
+        feedback.append(("✅ On Track", "Stats look solid across the board. Keep maintaining current training routine."))
+        
+    return feedback
+
+# --- Main Layout ---
+# Header with Logo Support
+logo_path = "logo.png"
+
+# Create two columns for Logo + Title if logo exists
+if os.path.exists(logo_path):
+    col_logo, col_title = st.columns([1, 5])
+    with col_logo:
+        st.image(logo_path, width='stretch')
+    with col_title:
+        st.title("⚾ NM Spartans Baseball")
+else:
+    st.title("⚾ NM Spartans Baseball")
+
+# Load Data
 df = load_data()
 
 if df.empty:
