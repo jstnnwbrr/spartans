@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import streamlit.components.v1 as components
 import os
 
 # --- Configuration ---
@@ -72,6 +71,7 @@ def load_data():
                     return 0
                 
                 df['CS%_Catch'] = df.apply(calc_cs_pct, axis=1)
+                df['PBIC'] = df.apply(lambda x: (100 * x['PB'] / x['INN_Catch']) if x['INN_Catch'] > 0 else 0, axis=1)
 
                 # Filter out empty rows or footer info
                 df = df[df['First'].notna()]
@@ -153,26 +153,6 @@ else:
 st.header("📅 Team Schedule")
 st.markdown("Upcoming games and events.")
 
-# GameChanger Widget Embed
-components.html(
-    """
-    <!-- Put this div wherever you want the widget to be embedded -->
-    <div id="gc-schedule-widget-lexg"></div>
-
-    <!-- Put this before the closing </body> tag -->
-    <script src="https://widgets.gc.com/static/js/sdk.v1.js"></script>
-    <script>
-        window.GC.team.schedule.init({
-            target: "#gc-schedule-widget-lexg",
-            widgetId: "8186ee09-5d4e-412d-bcb4-1a2375c6cf9d",
-            maxVerticalGamesVisible: 20,
-        })
-    </script>
-    """,
-    height=800,  
-    scrolling=True,
-)
-
 df = load_data()
 
 if df.empty:
@@ -234,7 +214,7 @@ else:
                 catchers_df = season_df[season_df['INN_Catch'] > 0].copy()
                 
                 if not catchers_df.empty:
-                    catch_cols = ['Full Name', 'INN_Catch', 'PB', 'SB_Catch', 'CS_Catch', 'CS%_Catch', 'FPCT']
+                    catch_cols = ['Full Name', 'INN_Catch', 'PB', 'PBIC', 'SB_Catch', 'CS_Catch', 'CS%_Catch', 'FPCT']
                     c_display = [c for c in catch_cols if c in catchers_df.columns]
                     
                     st.dataframe(
@@ -242,7 +222,7 @@ else:
                         width='stretch'
                     )
 
-                    st.info("INN_Catch=Innings Caught,  PB=Passed Balls Allowed,  SB_Catch=Stolen Bases Allowed,  CS_Catch=Caught Stealing,  CS%_Catch=Caught Stealing Percentage,  FPCT=Fielding Percentage")
+                    st.info("INN_Catch=Innings Caught,  PB=Passed Balls Allowed,  PBIC=Passed Balls Allowed per Inning Caught,   SB_Catch=Stolen Bases Allowed,  CS_Catch=Caught Stealing,  CS%_Catch=Caught Stealing Percentage,  FPCT=Fielding Percentage")
                 else:
                     st.info("No catcher stats recorded for this season.")
             
