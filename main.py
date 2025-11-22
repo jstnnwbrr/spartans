@@ -215,7 +215,7 @@ else:
                     c_display = [c for c in catch_cols if c in catchers_df.columns]
                     
                     st.dataframe(
-                        catchers_df[c_display].sort_values(by='INN_Catch', ascending=False).set_index('Full Name').style.format({"CS%_Catch": "{:.1f}%", "FPCT": "{:.3f}"}),
+                        catchers_df[c_display].sort_values(by='INN_Catch', ascending=False).set_index('Full Name').style.format({"INN_Catch": "{:.1f}", "PB": "{:.0f}", "PBIC": "{:.3f}", "SB_Catch": "{:.0f}", "CS_Catch": "{:.0f}", "CS%_Catch": "{:.1f}%", "FPCT": "{:.3f}"}),
                         width='stretch'
                     )
 
