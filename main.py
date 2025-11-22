@@ -46,8 +46,8 @@ def load_data():
                 
                 # Ensure numeric conversion for stats
                 cols_to_numeric = [
-                    'AVG', 'OBP', 'SLG', 'OPS', 'PA', 'AB', 'H', 'BB', 'SO', 'QAB%', 
-                    'ERA', 'WHIP', 'IP', 'FPCT', 'BA/RISP', 'SB', 
+                    'AVG', 'OBP', 'SLG', 'OPS', 'PA', 'AB', 'H', '1B', '2B', '3B', 'HR', 'BB', 'SO', 'QAB%', 
+                    'ERA', 'WHIP', 'IP', 'TC', 'A', 'PO', 'FPCT', 'E', 'BA/RISP', 'SB', 
                     'INN_Catch', 'PB', 'SB_Catch', 'CS_Catch',
                     'BB_Pitch', 'SO_Pitch', 'H_Pitch', 'R_Pitch'
                 ]
@@ -58,7 +58,7 @@ def load_data():
                 
                 # Create a Full Name column
                 df['Full Name'] = df['First'] + " " + df['Last']
-                
+
                 # Strikeout Percentage (avoid division by zero)
                 df['SO%'] = df.apply(lambda x: (x['SO'] / x['PA'] * 100) if x['PA'] > 0 else 0, axis=1)
 
@@ -71,7 +71,12 @@ def load_data():
                     return 0
                 
                 df['CS%_Catch'] = df.apply(calc_cs_pct, axis=1)
+                
+                # Passed Balls per Inning Caught (PBIC)
                 df['PBIC'] = df.apply(lambda x: (x['PB'] / x['INN_Catch']) if x['INN_Catch'] > 0 else 0, axis=1)
+
+                # Errors per Total Chances (E%)
+                df['E%'] = df.apply(lambda x: (x['E'] / (x['E'] + x.get('A', 0) + x.get('PO', 0)) * 100) if (x['E'] + x.get('A', 0) + x.get('PO', 0)) > 0 else 0, axis=1)
 
                 # Filter out empty rows or footer info
                 df = df[df['First'].notna()]
@@ -109,6 +114,16 @@ def get_development_feedback(row):
         if 'BA/RISP' in row and row['BA/RISP'] < (row['AVG'] - 0.050):
             feedback.append(("🧠 Mental Game", 
                              f"Batting Average drops with Runners in Scoring Position ({row['BA/RISP']:.3f} vs {row['AVG']:.3f}). Work on mental approach in high-pressure spots."))
+
+    # --- Fielding Feedback ---
+    if row['TC'] > 50: # Only generate if enough chances
+        if row['FPCT'] < 0.950:
+            feedback.append(("🛡️ Fielding Fundamentals", 
+                             f"Fielding Percentage is {row['FPCT']:.3f}. Emphasize footwork, glove work, and throwing accuracy during practice."))
+
+        if row['E%'] > 5:
+            feedback.append(("🚫 Error Reduction", 
+                             f"Error % is {row['E%']:.1f}%. Focus on consistent mechanics and situational awareness to reduce errors."))
 
     # --- Pitching Feedback ---
     if row['IP'] > 5:
@@ -173,21 +188,33 @@ else:
         if season_df.empty:
             st.error(f"No data found for {latest_season}")
         else:
-            # --- 1. Batting Leaders ---
-            st.subheader("⚔️ Offensive Leaders")
-            bat_cols = ['Full Name', 'GP', 'PA', 'AVG', 'OPS', 'QAB%', 'SO%', 'H', 'RBI']
+            # --- 1. Batting ---
+            st.subheader("⚔️ Batting")
+            bat_cols = ['Full Name', 'GP', 'PA', 'H', 'AVG', 'OBP', 'OPS', 'SLG', 'QAB%', '1B', '2B', '3B', 'HR', 'RBI', 'SO%']
             display_bat = [c for c in bat_cols if c in season_df.columns]
             
             st.dataframe(
-                season_df[display_bat].sort_values(by='OPS', ascending=False).set_index('Full Name').style.format({"SO%": "{:.1f}%", "QAB%": "{:.1f}%", "AVG": "{:.3f}", "OPS": "{:.3f}"}),
+                season_df[display_bat].sort_values(by='OPS', ascending=False).set_index('Full Name').style.format({"GP": "{:.0f}", "PA": "{:.0f}", "H": "{:.0f}", "AVG": "{:.3f}", "OBP": "{:.3f}", "OPS": "{:.3f}", "SLG": "{:.3f}", "QAB%": "{:.1f}%", "1B": "{:.0f}", "2B": "{:.0f}", "3B": "{:.0f}", "HR": "{:.0f}", "RBI": "{:.0f}", "SO%": "{:.1f}%"}),
                 width='stretch'
             )
 
-            st.info("GP=Games played,  PA=Plate Appearances,  AVG=Batting Average,  OPS=On-base Plus Slugging,  QAB%=Quality At-Bats %,  SO%=Strikeout %,  H=Hits,  RBI=Runs Batted In")
+            st.info("GP=Games played,  PA=Plate Appearances,  H=Hits,  AVG=Batting Average,  OBP=On-base Percentage,  OPS=On-base Plus Slugging,  SLG=Slugging Percentage,  QAB%=Quality At-Bats %,  1B=Singles, 2B=Doubles, 3B=Triples, HR=Home Runs, RBI=Runs Batted In, SO%=Strikeout %")
 
-            # --- 2. Pitchers ---
+            # --- 3. Fielding ---
             st.divider()
-            st.subheader("⚾ Pitchers")
+            st.subheader("🛡️ Fielding")
+            field_cols = ['Full Name', 'TC', 'A', 'PO', 'FPCT', 'E', 'E%']
+            display_field = [c for c in field_cols if c in season_df.columns]
+
+            st.dataframe(
+                season_df[display_field].sort_values(by='FPCT', ascending=False).set_index('Full Name').style.format({"TC": "{:.0f}", "A": "{:.0f}", "PO": "{:.0f}", "FPCT": "{:.3f}", "E": "{:.0f}", "E%": "{:.1f}%"}),
+                width='stretch'
+            )
+            st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")    
+            
+            # --- 4. Pitching ---
+            st.divider()
+            st.subheader("⚾ Pitching")
             pitch_df = season_df[season_df['IP'] > 0].copy()
             
             if not pitch_df.empty:
@@ -204,9 +231,9 @@ else:
             else:
                 st.info("No pitching stats recorded for this season.")
 
-            # --- 3. Catchers ---
+            # --- 5. Catching ---
             st.divider()
-            st.subheader("🧱 Catchers")
+            st.subheader("🧱 Catching")
             if 'INN_Catch' in season_df.columns:
                 catchers_df = season_df[season_df['INN_Catch'] > 0].copy()
                 
@@ -393,10 +420,20 @@ else:
                               barmode='group', title="Discipline: Quality At-Bats % vs Strikeout %")
             fig_disc.update_yaxes(title_text="Percentage (%)")
             st.plotly_chart(fig_disc, width='stretch')
-            st.info("AVG=Batting Average,  OBP=On-base Percentage,  OPS=On-base Plus Slugging,  SLG=Slugging Percentage,  QAB%=Quality At-Bats %,  SO%=Strikeout %")
+            st.info("AVG=Batting Average,  OBP=On-base Percentage,  OPS=On-base Plus Slugging,  SLG=Slugging Percentage,  AB%=Quality At-Bats,  SO%=Strikeout %")
 
-        # Tab 2: Pitching
+        # Tab 2: Fielding
         with tab_objs[1]:
+            if player_stats['IP'].sum() > 0:
+                fig_field = px.line(player_stats, x='Season', y=['TC', 'A', 'PO', 'FPCT', 'E', 'E%'], 
+                                    markers=True, title="Fielding Percentage & Error % Progression")
+                st.plotly_chart(fig_field, width='stretch')
+                st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")
+            else:
+                st.write("No fielding stats available for this player.")
+
+        # Tab 3: Pitching
+        with tab_objs[2]:
             if player_stats['IP'].sum() > 0:
                 fig_pitch = px.line(player_stats, x='Season', y=['ERA', 'WHIP'], 
                                     markers=True, title="ERA & WHIP Progression")
@@ -405,9 +442,9 @@ else:
             else:
                 st.write("No pitching stats available for this player.")
 
-        # Tab 3: Catching
+        # Tab 4: Catching
         if has_catching:
-            with tab_objs[2]:
+            with tab_objs[3]:
                 st.subheader("🛡️ Behind the Dish")
                 c1, c2, c3 = st.columns(3)
                 total_inn = player_stats['INN_Catch'].sum()
