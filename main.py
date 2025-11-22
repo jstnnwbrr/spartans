@@ -102,12 +102,100 @@ else:
     latest_season = "NM Spartans 12U Fall 2025"
     
     # --- View Selection ---
-    view_mode = st.sidebar.radio("Select View", ["Player Analysis", "Team Summary"])
+    view_mode = st.sidebar.radio("Select View", ["Team Summary", "Player Analysis"])
+
+# ==========================================
+    # VIEW 1: TEAM SUMMARY
+    # ==========================================
+    if view_mode == "Team Summary":
+        st.header(f"Team Overview: {latest_season}")
+        
+        # Get Data for latest season
+        season_df = df[df['Season'] == latest_season].copy()
+        
+        if season_df.empty:
+            st.error(f"No data found for {latest_season}")
+        else:
+            # --- 1. Summary Stats Table ---
+            st.subheader("📊 Team Statistics")
+            
+            # Select key columns for a clean summary view
+            key_cols = ['Full Name', 'GP', 'PA', 'AVG', 'OPS', 'QAB%', 'H', 'RBI', 'SO', 'ERA', 'IP']
+            # Only include columns that actually exist in the dataframe
+            display_cols = [c for c in key_cols if c in season_df.columns]
+            
+            # Display table sorted by OPS by default
+            st.dataframe(
+                season_df[display_cols].sort_values(by='OPS', ascending=False).set_index('Full Name'),
+                use_container_width=True,
+                height=400
+            )
+            
+            # --- 2. Radar Charts Grid ---
+            st.divider()
+            st.subheader("🕸️ Player Skill Profiles (Radar View)")
+            st.markdown("Comparison of player archetypes relative to the team's best performance in each category.")
+            
+            metrics = {
+                'Contact': 'AVG',
+                'Power': 'SLG',
+                'Discipline': 'OBP',
+                'Speed': 'SB',
+                'Fielding': 'FPCT'
+            }
+            
+            # Calculate max values for this season once to normalize charts
+            max_vals = {col: season_df[col].max() for col in metrics.values()}
+            
+            # Create a grid layout (3 columns wide)
+            players = sorted(season_df['Full Name'].unique())
+            cols = st.columns(3)
+            
+            for i, player in enumerate(players):
+                # Get player data
+                p_data = season_df[season_df['Full Name'] == player].iloc[0]
+                
+                # Build Radar Data
+                r_values = []
+                r_theta = []
+                
+                for label, col in metrics.items():
+                    val = p_data[col]
+                    m_val = max_vals[col]
+                    # Normalize (0 to 1 scale)
+                    norm = (val / m_val) if m_val > 0 else 0
+                    r_values.append(norm)
+                    r_theta.append(label)
+                
+                # Close the loop
+                r_values.append(r_values[0])
+                r_theta.append(r_theta[0])
+                
+                # Create Figure
+                fig = go.Figure()
+                fig.add_trace(go.Scatterpolar(
+                    r=r_values,
+                    theta=r_theta,
+                    fill='toself',
+                    name=player,
+                    line_color='royalblue'
+                ))
+                fig.update_layout(
+                    polar=dict(radialaxis=dict(visible=False, range=[0, 1])),
+                    showlegend=False,
+                    title=dict(text=player, x=0.5, xanchor='center'),
+                    margin=dict(t=30, b=30, l=30, r=30),
+                    height=250
+                )
+                
+                # Display in grid column
+                with cols[i % 3]:
+                    st.plotly_chart(fig, use_container_width=True)
 
     # ==========================================
-    # VIEW 1: INDIVIDUAL PLAYER ANALYSIS
+    # VIEW 2: INDIVIDUAL PLAYER ANALYSIS
     # ==========================================
-    if view_mode == "Player Analysis":
+    elif view_mode == "Player Analysis":
         st.sidebar.header("Player Selection")
         
         # Filter to get only players present in the latest season
@@ -215,91 +303,3 @@ else:
 
         with tab3:
             st.dataframe(player_stats)
-
-    # ==========================================
-    # VIEW 2: TEAM SUMMARY
-    # ==========================================
-    elif view_mode == "Team Summary":
-        st.header(f"Team Overview: {latest_season}")
-        
-        # Get Data for latest season
-        season_df = df[df['Season'] == latest_season].copy()
-        
-        if season_df.empty:
-            st.error(f"No data found for {latest_season}")
-        else:
-            # --- 1. Summary Stats Table ---
-            st.subheader("📊 Team Statistics")
-            
-            # Select key columns for a clean summary view
-            key_cols = ['Full Name', 'GP', 'PA', 'AVG', 'OPS', 'QAB%', 'H', 'RBI', 'SO', 'ERA', 'IP']
-            # Only include columns that actually exist in the dataframe
-            display_cols = [c for c in key_cols if c in season_df.columns]
-            
-            # Display table sorted by OPS by default
-            st.dataframe(
-                season_df[display_cols].sort_values(by='OPS', ascending=False).set_index('Full Name'),
-                use_container_width=True,
-                height=400
-            )
-            
-            # --- 2. Radar Charts Grid ---
-            st.divider()
-            st.subheader("🕸️ Player Skill Profiles (Radar View)")
-            st.markdown("Comparison of player archetypes relative to the team's best performance in each category.")
-            
-            metrics = {
-                'Contact': 'AVG',
-                'Power': 'SLG',
-                'Discipline': 'OBP',
-                'Speed': 'SB',
-                'Fielding': 'FPCT'
-            }
-            
-            # Calculate max values for this season once to normalize charts
-            max_vals = {col: season_df[col].max() for col in metrics.values()}
-            
-            # Create a grid layout (3 columns wide)
-            players = sorted(season_df['Full Name'].unique())
-            cols = st.columns(3)
-            
-            for i, player in enumerate(players):
-                # Get player data
-                p_data = season_df[season_df['Full Name'] == player].iloc[0]
-                
-                # Build Radar Data
-                r_values = []
-                r_theta = []
-                
-                for label, col in metrics.items():
-                    val = p_data[col]
-                    m_val = max_vals[col]
-                    # Normalize (0 to 1 scale)
-                    norm = (val / m_val) if m_val > 0 else 0
-                    r_values.append(norm)
-                    r_theta.append(label)
-                
-                # Close the loop
-                r_values.append(r_values[0])
-                r_theta.append(r_theta[0])
-                
-                # Create Figure
-                fig = go.Figure()
-                fig.add_trace(go.Scatterpolar(
-                    r=r_values,
-                    theta=r_theta,
-                    fill='toself',
-                    name=player,
-                    line_color='royalblue'
-                ))
-                fig.update_layout(
-                    polar=dict(radialaxis=dict(visible=False, range=[0, 1])),
-                    showlegend=False,
-                    title=dict(text=player, x=0.5, xanchor='center'),
-                    margin=dict(t=30, b=30, l=30, r=30),
-                    height=250
-                )
-                
-                # Display in grid column
-                with cols[i % 3]:
-                    st.plotly_chart(fig, use_container_width=True)
