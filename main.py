@@ -147,7 +147,7 @@ def get_development_feedback(row):
                              f"High Passed Ball rate ({row['PB']} in {row['INN_Catch']} innings). Focus on blocking drills and softer hands receiving. Take a deep breath in prior to the pitch and focus on keeping eyes open as the ball approaches to better track its trajectory and execute your block."))
         
         total_attempts = row.get('SB_Catch', 0) + row.get('CS_Catch', 0)
-        if total_attempts >= 5 and row['CS%_Catch'] < 15:
+        if total_attempts >= 5 and row['CS%_Catch'] < 10:
              feedback.append(("💪 Catcher Throwing", 
                               f"Caught Stealing % is low ({row['CS%_Catch']:.1f}%). Work on transfer speed, footwork, and arm strength. Be sure to fully step toward the target while maintaining eye contact and execute a full follow-through motion towards the glove of your infielder. Also develop your risk-reward decision making mindset - if you have it, take it! But also consider that a quick off-target throw is ALWAYS worse than a well-placed late throw."))
 
