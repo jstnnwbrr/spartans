@@ -156,20 +156,21 @@ st.markdown("Upcoming games and events.")
 # GameChanger Widget Embed
 components.html(
     """
-    <!-- Added style to ensure the element inside the iframe takes up enough space -->
-    <div id="gc-schedule-widget-m1yl" style="min-height: 100%;"></div> 
+    <!-- Put this div wherever you want the widget to be embedded -->
+    <div id="gc-schedule-widget-lexg"></div>
 
+    <!-- Put this before the closing </body> tag -->
     <script src="https://widgets.gc.com/static/js/sdk.v1.js"></script>
     <script>
         window.GC.team.schedule.init({
-        target: "#gc-schedule-widget-m1yl",
-        widgetId: "8186ee09-5d4e-412d-bcb4-1a2375c6cf9d",
-        maxVerticalGamesVisible: 4,
+            target: "#gc-schedule-widget-lexg",
+            widgetId: "8186ee09-5d4e-412d-bcb4-1a2375c6cf9d",
+            maxVerticalGamesVisible: 4,
         })
     </script>
     """,
-    height=3500,  # Increased fixed height to a very generous amount
-    scrolling=True
+    height=150,  
+    scrolling=True,
 )
 
 df = load_data()
