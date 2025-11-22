@@ -150,27 +150,27 @@ if os.path.exists(logo_path):
 else:
     st.title("⚾ NM Spartans Baseball")
 
-    st.header("📅 Team Schedule")
-    st.markdown("Upcoming games and events.")
-    
-    # GameChanger Widget Embed
-    components.html(
-        """
-        <!-- Added style to ensure the element inside the iframe takes up enough space -->
-        <div id="gc-schedule-widget-m1yl" style="min-height: 100%;"></div> 
+st.header("📅 Team Schedule")
+st.markdown("Upcoming games and events.")
 
-        <script src="https://widgets.gc.com/static/js/sdk.v1.js"></script>
-        <script>
-            window.GC.team.schedule.init({
-            target: "#gc-schedule-widget-m1yl",
-            widgetId: "8186ee09-5d4e-412d-bcb4-1a2375c6cf9d",
-            maxVerticalGamesVisible: 4,
-            })
-        </script>
-        """,
-        height=2000,  # Increased fixed height to a very generous amount
-        scrolling=True
-    )
+# GameChanger Widget Embed
+components.html(
+    """
+    <!-- Added style to ensure the element inside the iframe takes up enough space -->
+    <div id="gc-schedule-widget-m1yl" style="min-height: 100%;"></div> 
+
+    <script src="https://widgets.gc.com/static/js/sdk.v1.js"></script>
+    <script>
+        window.GC.team.schedule.init({
+        target: "#gc-schedule-widget-m1yl",
+        widgetId: "8186ee09-5d4e-412d-bcb4-1a2375c6cf9d",
+        maxVerticalGamesVisible: 4,
+        })
+    </script>
+    """,
+    height=2000,  # Increased fixed height to a very generous amount
+    scrolling=True
+)
 
 df = load_data()
 
