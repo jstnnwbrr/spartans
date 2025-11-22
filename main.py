@@ -169,7 +169,7 @@ components.html(
         })
     </script>
     """,
-    height=150,  
+    height=800,  
     scrolling=True,
 )
 
