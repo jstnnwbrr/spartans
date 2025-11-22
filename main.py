@@ -136,7 +136,18 @@ def get_development_feedback(row):
     return feedback
 
 # --- Main Layout ---
-st.title("⚾ NM Spartans Development Dashboard")
+# Header with Logo Support
+logo_path = "logo.png"
+
+# Create two columns for Logo + Title if logo exists
+if os.path.exists(logo_path):
+    col_logo, col_title = st.columns([1, 5])
+    with col_logo:
+        st.image(logo_path, use_container_width=True)
+    with col_title:
+        st.title("⚾ NM Spartans Development Dashboard")
+else:
+    st.title("⚾ NM Spartans Development Dashboard")
 
 df = load_data()
 
