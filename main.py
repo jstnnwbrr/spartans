@@ -208,7 +208,7 @@ else:
 
             st.dataframe(
                 season_df[display_field].sort_values(by='FPCT', ascending=False).set_index('Full Name').style.format({"TC": "{:.0f}", "A": "{:.0f}", "PO": "{:.0f}", "FPCT": "{:.3f}", "E": "{:.0f}", "E%": "{:.1f}%"}),
-                width='stretch'
+                width='stretch', height=500
             )
             st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")    
             
