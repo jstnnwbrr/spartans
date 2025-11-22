@@ -171,11 +171,11 @@ else:
                 use_container_width=True
             )
 
-            st.info("GP=Games played, PA=Plate Appearances, AVG=Batting Average, OPS=On-base Plus Slugging, QAB%=Quality At-Bats %, SO%=Strikeout %, H=Hits, RBI=Runs Batted In")
+            st.info("GP=Games played,  PA=Plate Appearances,  AVG=Batting Average,  OPS=On-base Plus Slugging,  QAB%=Quality At-Bats %,  SO%=Strikeout %,  H=Hits,  RBI=Runs Batted In")
 
-            # --- 2. Pitching Leaders ---
+            # --- 2. Pitchers ---
             st.divider()
-            st.subheader("⚾ Pitching Staff")
+            st.subheader("⚾ Pitchers")
             pitch_df = season_df[season_df['IP'] > 0].copy()
             
             if not pitch_df.empty:
@@ -188,13 +188,13 @@ else:
                     use_container_width=True
                 )
 
-                st.info("IP=Innings Pitched, ERA=Earned Run Average, WHIP=Walks plus Hits per Inning Pitched, SO_Pitch=Strikeouts Pitched, BB_Pitch=Walks Pitched, H_Pitch=Hits Allowed")
+                st.info("IP=Innings Pitched,  ERA=Earned Run Average,  WHIP=Walks plus Hits per Inning Pitched,  SO_Pitch=Strikeouts Pitched,  BB_Pitch=Walks Pitched,  H_Pitch=Hits Allowed")
             else:
                 st.info("No pitching stats recorded for this season.")
 
-            # --- 3. Catcher Leaderboard ---
+            # --- 3. Catchers ---
             st.divider()
-            st.subheader("🧱 Catcher Leaderboard")
+            st.subheader("🧱 Catchers")
             if 'INN_Catch' in season_df.columns:
                 catchers_df = season_df[season_df['INN_Catch'] > 0].copy()
                 
@@ -207,7 +207,7 @@ else:
                         use_container_width=True
                     )
 
-                    st.info("INN_Catch=Innings Caught, PB=Passed Balls Allowed, SB_Catch=Stolen Bases Allowed, CS_Catch=Caught Stealing, CS%_Catch=Caught Stealing Percentage, FPCT=Fielding Percentage")
+                    st.info("INN_Catch=Innings Caught,  PB=Passed Balls Allowed,  SB_Catch=Stolen Bases Allowed,  CS_Catch=Caught Stealing,  CS%_Catch=Caught Stealing Percentage,  FPCT=Fielding Percentage")
                 else:
                     st.info("No catcher stats recorded for this season.")
             
@@ -381,7 +381,7 @@ else:
                               barmode='group', title="Discipline: Quality At-Bats % vs Strikeout %")
             fig_disc.update_yaxes(title_text="Percentage (%)")
             st.plotly_chart(fig_disc, use_container_width=True)
-            st.info("AVG=Batting Average, OBP=On-base Percentage, OPS=On-base Plus Slugging, SLG=Slugging Percentage, QAB%=Quality At-Bats %, SO%=Strikeout %")
+            st.info("AVG=Batting Average,  OBP=On-base Percentage,  OPS=On-base Plus Slugging,  SLG=Slugging Percentage,  QAB%=Quality At-Bats %,  SO%=Strikeout %")
 
         # Tab 2: Pitching
         with tab_objs[1]:
@@ -389,7 +389,7 @@ else:
                 fig_pitch = px.line(player_stats, x='Season', y=['ERA', 'WHIP'], 
                                     markers=True, title="ERA & WHIP Progression")
                 st.plotly_chart(fig_pitch, use_container_width=True)
-                st.info("ERA=Earned Run Average, WHIP=Walks plus Hits per Inning Pitched, IP=Innings Pitched")
+                st.info("ERA=Earned Run Average,  WHIP=Walks plus Hits per Inning Pitched,  IP=Innings Pitched")
             else:
                 st.write("No pitching stats available for this player.")
 
@@ -414,7 +414,7 @@ else:
                 fig_catch = px.bar(player_stats, x='Season', y=['PB', 'SB_Catch', 'CS_Catch'],
                                    barmode='group', title="Defensive Breakdown (Count)")
                 st.plotly_chart(fig_catch, use_container_width=True)
-                st.info("PB=Passed Balls Allowed, SB_Catch=Stolen Bases Allowed, CS_Catch=Caught Stealing")
+                st.info("PB=Passed Balls Allowed,  SB_Catch=Stolen Bases Allowed,  CS_Catch=Caught Stealing")
         
         # Raw Data Tab
         with tab_objs[-1]:
