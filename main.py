@@ -122,7 +122,7 @@ def get_development_feedback(row):
 
     # --- Fielding Feedback ---
     if row['TC'] > 50: # Only generate if enough chances
-        if row['FPCT'] < 0.950:
+        if row['FPCT'] < 0.850:
             feedback.append(("🛡️ Fielding Fundamentals", 
                              f"Fielding Percentage is {row['FPCT']:.3f}. Emphasize footwork, glove work, and throwing accuracy during practice. Once you field the ball, look up and establish eye contact with your target as early as possible and well before the ball leaves your hand."))
 
