@@ -223,7 +223,7 @@ else:
                 display_pitch = [c for c in pitch_cols if c in pitch_df.columns]
                 
                 st.dataframe(
-                    pitch_df[display_pitch].sort_values(by='ERA', ascending=True).set_index('Full Name').style.format({"ERA": "{:.2f}", "WHIP": "{:.2f}", "IP": "{:.1f}"}),
+                    pitch_df[display_pitch].sort_values(by='ERA', ascending=True).set_index('Full Name').style.format({"IP": "{:.2f}", "ERA": "{:.2f}", "WHIP": "{:.2f}", "SO_Pitch": "{:.0f}", "BB_Pitch": "{:.0f}", "H_Pitch": "{:.0f}"}),
                     width='stretch'
                 )
 
