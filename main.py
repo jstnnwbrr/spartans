@@ -144,7 +144,7 @@ logo_path = "logo.png"
 if os.path.exists(logo_path):
     col_logo, col_title = st.columns([1, 5])
     with col_logo:
-        st.image(logo_path, use_container_width=True)
+        st.image(logo_path, width='stretch')
     with col_title:
         st.title("⚾ NM Spartans Baseball")
 else:
@@ -203,7 +203,7 @@ else:
             
             st.dataframe(
                 season_df[display_bat].sort_values(by='OPS', ascending=False).set_index('Full Name').style.format({"SO%": "{:.1f}%", "QAB%": "{:.1f}%", "AVG": "{:.3f}", "OPS": "{:.3f}"}),
-                use_container_width=True
+                width='stretch'
             )
 
             st.info("GP=Games played,  PA=Plate Appearances,  AVG=Batting Average,  OPS=On-base Plus Slugging,  QAB%=Quality At-Bats %,  SO%=Strikeout %,  H=Hits,  RBI=Runs Batted In")
@@ -220,7 +220,7 @@ else:
                 
                 st.dataframe(
                     pitch_df[display_pitch].sort_values(by='ERA', ascending=True).set_index('Full Name').style.format({"ERA": "{:.2f}", "WHIP": "{:.2f}", "IP": "{:.1f}"}),
-                    use_container_width=True
+                    width='stretch'
                 )
 
                 st.info("IP=Innings Pitched,  ERA=Earned Run Average,  WHIP=Walks plus Hits per Inning Pitched,  SO_Pitch=Strikeouts Pitched,  BB_Pitch=Walks Pitched,  H_Pitch=Hits Allowed")
@@ -239,7 +239,7 @@ else:
                     
                     st.dataframe(
                         catchers_df[c_display].sort_values(by='INN_Catch', ascending=False).set_index('Full Name').style.format({"CS%_Catch": "{:.1f}%", "FPCT": "{:.3f}"}),
-                        use_container_width=True
+                        width='stretch'
                     )
 
                     st.info("INN_Catch=Innings Caught,  PB=Passed Balls Allowed,  SB_Catch=Stolen Bases Allowed,  CS_Catch=Caught Stealing,  CS%_Catch=Caught Stealing Percentage,  FPCT=Fielding Percentage")
@@ -305,7 +305,7 @@ else:
                 
                 # Display in grid column
                 with cols[i % 3]:
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
 
     # ==========================================
     # VIEW 2: INDIVIDUAL PLAYER ANALYSIS
@@ -392,7 +392,7 @@ else:
                 showlegend=False,
                 title="Skill Profile (vs Team Max)"
             )
-            st.plotly_chart(fig_radar, use_container_width=True)
+            st.plotly_chart(fig_radar, width='stretch')
 
         # --- Statistical Trends ---
         st.header("📈 Seasonal Progression")
@@ -410,12 +410,12 @@ else:
         with tab_objs[0]:
             fig_bat = px.line(player_stats, x='Season', y=['AVG', 'OBP', 'OPS', 'SLG'], 
                               markers=True, title="Hitting Metrics Over Time")
-            st.plotly_chart(fig_bat, use_container_width=True)
+            st.plotly_chart(fig_bat, width='stretch')
             
             fig_disc = px.bar(player_stats, x='Season', y=['QAB%', 'SO%'], 
                               barmode='group', title="Discipline: Quality At-Bats % vs Strikeout %")
             fig_disc.update_yaxes(title_text="Percentage (%)")
-            st.plotly_chart(fig_disc, use_container_width=True)
+            st.plotly_chart(fig_disc, width='stretch')
             st.info("AVG=Batting Average,  OBP=On-base Percentage,  OPS=On-base Plus Slugging,  SLG=Slugging Percentage,  QAB%=Quality At-Bats %,  SO%=Strikeout %")
 
         # Tab 2: Pitching
@@ -423,7 +423,7 @@ else:
             if player_stats['IP'].sum() > 0:
                 fig_pitch = px.line(player_stats, x='Season', y=['ERA', 'WHIP'], 
                                     markers=True, title="ERA & WHIP Progression")
-                st.plotly_chart(fig_pitch, use_container_width=True)
+                st.plotly_chart(fig_pitch, width='stretch')
                 st.info("ERA=Earned Run Average,  WHIP=Walks plus Hits per Inning Pitched,  IP=Innings Pitched")
             else:
                 st.write("No pitching stats available for this player.")
@@ -448,7 +448,7 @@ else:
                 
                 fig_catch = px.bar(player_stats, x='Season', y=['PB', 'SB_Catch', 'CS_Catch'],
                                    barmode='group', title="Defensive Breakdown (Count)")
-                st.plotly_chart(fig_catch, use_container_width=True)
+                st.plotly_chart(fig_catch, width='stretch')
                 st.info("PB=Passed Balls Allowed,  SB_Catch=Stolen Bases Allowed,  CS_Catch=Caught Stealing")
         
         # Raw Data Tab
