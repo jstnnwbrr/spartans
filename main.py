@@ -71,7 +71,7 @@ def load_data():
                     return 0
                 
                 df['CS%_Catch'] = df.apply(calc_cs_pct, axis=1)
-                df['PBIC'] = df.apply(lambda x: (100 * x['PB'] / x['INN_Catch']) if x['INN_Catch'] > 0 else 0, axis=1)
+                df['PBIC'] = df.apply(lambda x: (x['PB'] / x['INN_Catch']) if x['INN_Catch'] > 0 else 0, axis=1)
 
                 # Filter out empty rows or footer info
                 df = df[df['First'].notna()]
