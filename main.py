@@ -195,7 +195,7 @@ else:
             
             st.dataframe(
                 season_df[display_bat].sort_values(by='OPS', ascending=False).set_index('Full Name').style.format({"GP": "{:.0f}", "PA": "{:.0f}", "H": "{:.0f}", "AVG": "{:.3f}", "OBP": "{:.3f}", "OPS": "{:.3f}", "SLG": "{:.3f}", "QAB%": "{:.1f}%", "1B": "{:.0f}", "2B": "{:.0f}", "3B": "{:.0f}", "HR": "{:.0f}", "RBI": "{:.0f}", "SO%": "{:.1f}%"}),
-                width='stretch', height=250
+                width='stretch', height=750
             )
 
             st.info("GP=Games played,  PA=Plate Appearances,  H=Hits,  AVG=Batting Average,  OBP=On-base Percentage,  OPS=On-base Plus Slugging,  SLG=Slugging Percentage,  QAB%=Quality At-Bats %,  1B=Singles, 2B=Doubles, 3B=Triples, HR=Home Runs, RBI=Runs Batted In, SO%=Strikeout %")
