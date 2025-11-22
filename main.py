@@ -165,7 +165,7 @@ components.html(
         window.GC.team.schedule.init({
             target: "#gc-schedule-widget-lexg",
             widgetId: "8186ee09-5d4e-412d-bcb4-1a2375c6cf9d",
-            maxVerticalGamesVisible: 4,
+            maxVerticalGamesVisible: 20,
         })
     </script>
     """,
