@@ -351,7 +351,7 @@ else:
         st.divider()
 
         # --- Development Insights ---
-        st.header("🚀 Development Focus: Next Level")
+        st.header("🚀 Development Focus:")
         
         insights_col, radar_col = st.columns([2, 1])
         
