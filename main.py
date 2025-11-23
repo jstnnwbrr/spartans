@@ -103,7 +103,7 @@ def get_development_feedback(row):
         # Plate Discipline
         if row['QAB%'] < 40:
             feedback.append(("⚠️ Quality At-Bats", 
-                             f"QAB% is {row['QAB%']}%. Regardless of whether your batting average shows it, you can improve your Quality At-Bats percentage by extending at-bats, fouling off tough pitches, and drawing more walks. Even small improvements here will increase your offensive contributions to the team."))
+                             f"QAB% is {row['QAB%']}%. Regardless of whether your batting average shows it, you can improve your Quality At-Bats percentage by extending at-bats, fouling off tough pitches, and drawing more walks. Take a deep breath and lock in one pitch at a time."))
         
         # Power vs Contact
         if row['SLG'] < row['OBP'] and row['AVG'] > .250:
@@ -118,7 +118,7 @@ def get_development_feedback(row):
         # Overly Cautious at the Plate
         if row['K-L'] > (row['PA'] * 0.07): # More than 7% strikeouts looking
             feedback.append(("🔍 Overly Cautious at the Plate", 
-                             f"Strikeouts Looking (K-L) rate is {row['K-L']/row['PA']:.1%}. Change your mindset and develop your will to fight for your team at the plate - if you're already striking out looking, how much worse could strikeout swinging be? Hits are made on swings!"))
+                             f"Strikeouts Looking (K-L) rate is {row['K-L']/row['PA']:.1%}. Remember your technique, but start taking a few chances! If you're already striking out looking, how much worse could strikeout swinging be?"))
 
     # --- Fielding Feedback ---
     if row['TC'] > 50: # Only generate if enough chances
@@ -128,7 +128,7 @@ def get_development_feedback(row):
 
         if row['E%'] > 5:
             feedback.append(("🚫 Error Reduction", 
-                             f"Error % is {row['E%']:.1f}%. Focus on consistent mechanics and situational awareness to reduce errors. Commmunicate with your teammates, and, if you call it, it's now on you to own the outcome for better or worse."))
+                             f"Error % is {row['E%']:.1f}%. Focus on consistent mechanics and situational awareness to reduce errors. Be sure to actively communicate with your teammates!"))
 
     # --- Pitching Feedback ---
     if row['IP'] > 5:
@@ -137,19 +137,19 @@ def get_development_feedback(row):
                              f"Walking {row['BB']/row['IP']:.1f} batters per inning. Bullpen sessions should focus strictly on fastball command."))
         if row['WHIP'] > 1.8:
             feedback.append(("🛡️ Run Prevention", 
-                             "Walks plus Hits per Inning Pitched (WHIP) is high. Focus on one batter at a time but especially on getting the first batter of the inning out to reduce traffic on base."))
+                             "Walks plus Hits per Inning Pitched (WHIP) is high. Focus on one batter at a time and don't be afraid to put the ball into play. Trust your defense to make the play!"))
 
     # --- Catching Feedback ---
     # Check if 'INN_Catch' exists and is greater than 0
     if 'INN_Catch' in row and row['INN_Catch'] > 5:
         if row['PB'] > (row['INN_Catch'] * 0.2): # More than 1 PB every 5 innings
             feedback.append(("🧱 Catcher Blocking", 
-                             f"High Passed Ball rate ({row['PB']} in {row['INN_Catch']} innings). Focus on blocking drills and softer hands receiving. Take a deep breath in prior to the pitch and focus on keeping eyes open as the ball approaches to better track its trajectory and execute your block."))
+                             f"High Passed Ball rate ({row['PB']} in {row['INN_Catch']} innings). Focus on blocking drills and softer hands receiving. Take a deep breath prior to the pitch and focus on keeping eyes open as the ball approaches to better track its trajectory and execute your block."))
         
         total_attempts = row.get('SB_Catch', 0) + row.get('CS_Catch', 0)
         if total_attempts >= 5 and row['CS%_Catch'] < 10:
              feedback.append(("💪 Catcher Throwing", 
-                              f"Caught Stealing % is low ({row['CS%_Catch']:.1f}%). Work on transfer speed, footwork, and arm strength. Be sure to fully step toward the target while maintaining eye contact and execute a full follow-through motion towards the glove of your infielder. Also develop your risk-reward decision making mindset - if you have it, take it! But also consider that a quick off-target throw is ALWAYS worse than a well-placed late throw."))
+                              f"Caught Stealing % is low ({row['CS%_Catch']:.1f}%). Work on transfer speed, footwork, and arm strength. Be sure to fully step toward the target while maintaining eye contact and execute a full follow-through motion towards the glove of your infielder."))
 
     if not feedback:
         feedback.append(("✅ On Track", "Stats look solid across the board. Keep maintaining current training routine."))
