@@ -108,7 +108,7 @@ def get_development_feedback(row):
         # Power vs Contact
         if row['SLG'] < row['OBP'] and row['AVG'] > .250:
              feedback.append(("ℹ️ Power Potential", 
-                              "Good on-base skills, but Slugging is lower than OBP. Focus on keeping hands back to create power sooner while maintaining head discipline to see the ball. As you further develop your skills, look to drive the ball into gaps rather than just making contact."))
+                              "Good on-base skills, but Slugging Percentage is lower than On-Base Percentage, indicating that your walks are contributing more heavily towards your On-Base Percentage. Focus on keeping hands back to create a solid swing sooner while maintaining head discipline to see the ball."))
 
         # Clutch
         if 'BA/RISP' in row and row['BA/RISP'] < (row['AVG'] - 0.050):
@@ -124,7 +124,7 @@ def get_development_feedback(row):
     if row['TC'] > 50: # Only generate if enough chances
         if row['FPCT'] < 0.850:
             feedback.append(("🛡️ Fielding Fundamentals", 
-                             f"Fielding Percentage is {row['FPCT']:.3f}. Emphasize footwork, glove work, and throwing accuracy during practice. Once you field the ball, look up and establish eye contact with your target as early as possible and well before the ball leaves your hand."))
+                             f"Fielding Percentage is {row['FPCT']:.3f}. Emphasize footwork, glove work, throwing accuracy, and follow-through during practice. Once you field the ball, look up and establish eye contact with your target as early as possible and well before the ball leaves your hand."))
 
         if row['E%'] > 5:
             feedback.append(("🚫 Error Reduction", 
