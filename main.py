@@ -257,7 +257,7 @@ else:
             
             # --- 2. Radar Charts Grid ---
             st.divider()
-            st.subheader("🕸️ Player Skill Profiles (Radar View)")
+            st.subheader("🕸️ Player Strengths")
             st.markdown("Comparison of player archetypes relative to the team's best performance in each category.")
             
             metrics = {
@@ -364,8 +364,7 @@ else:
                 st.write("---")
 
         with radar_col:
-            # Normalize stats against team max for the latest season
-            season_df = df[df['Season'] == latest['Season']]
+            st.subheader("🕸️ Skill Progression (vs Team Max)")
             
             metrics = {
                 'Contact': 'AVG',
@@ -375,33 +374,76 @@ else:
                 'Fielding': 'FPCT'
             }
             
-            r_values = []
-            r_theta = []
-            
-            for label, col in metrics.items():
-                max_val = season_df[col].max()
-                player_val = latest[col]
-                norm_val = (player_val / max_val) if max_val > 0 else 0
-                r_values.append(norm_val)
-                r_theta.append(label)
-                
-            # Close the loop for radar chart
-            r_values.append(r_values[0])
-            r_theta.append(r_theta[0])
-            
             fig_radar = go.Figure()
-            fig_radar.add_trace(go.Scatterpolar(
-                r=r_values,
-                theta=r_theta,
-                fill='toself',
-                name=selected_player
-            ))
+            
+            # Get all unique seasons for the player, sorted chronologically
+            player_seasons = player_stats['Season'].unique()
+            
+            for i, season in enumerate(player_seasons):
+                # 1. Get player's stats for this specific season
+                player_season_data = player_stats[player_stats['Season'] == season].iloc[0]
+                
+                # 2. Get all team stats for this season (for normalization)
+                team_season_df = df[df['Season'] == season]
+                
+                r_values = []
+                r_theta = []
+                
+                # Calculate normalized metric values
+                for label, col in metrics.items():
+                    # Calculate team max for the metric in this specific season
+                    max_val = team_season_df[col].max()
+                    player_val = player_season_data[col]
+                    
+                    # Normalize against the team max (0 to 1 range)
+                    norm_val = (player_val / max_val) if max_val > 0 else 0
+                    
+                    r_values.append(norm_val)
+                    r_theta.append(label)
+                
+                # Close the radar shape by repeating the first value
+                r_values.append(r_values[0])
+                r_theta.append(r_theta[0])
+                
+                # Define visual style based on season (latest season should be distinct)
+                line_style = {}
+                fill_style = 'none' # No fill by default
+                trace_name = season
+
+                if i == len(player_seasons) - 1:
+                    # Latest season: Solid line, bolder color, filled
+                    line_style = dict(color='rgb(30, 144, 255)', width=3) # Dodger Blue
+                    fill_style = 'toself'
+                    trace_name = f"{season} (Current)"
+                elif i == 0:
+                    # Earliest season: Dashed line, grayed out
+                    line_style = dict(color='rgba(100, 100, 100, 0.7)', dash='dash')
+                else:
+                    # Intermediate seasons: Dotted line
+                    line_style = dict(color='rgba(100, 100, 100, 0.5)', dash='dot')
+
+                # Add trace to radar chart
+                fig_radar.add_trace(go.Scatterpolar(
+                    r=r_values,
+                    theta=r_theta,
+                    fill=fill_style,
+                    name=trace_name,
+                    line=line_style,
+                    opacity=1.0 if i == len(player_seasons) - 1 else 0.8
+                ))
+            
+            # Update layout for multi-trace view
             fig_radar.update_layout(
-                polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
-                showlegend=False,
-                title="Skill Profile (vs Team Max)"
+                polar=dict(
+                    # Display 0 to 1 range with percentage tick marks
+                    radialaxis=dict(visible=True, range=[0, 1], tickvals=[0.25, 0.5, 0.75, 1.0], ticktext=["25%", "50%", "75%", "100%"]),
+                    angularaxis=dict(rotation=90, direction='counterclockwise')
+                ),
+                showlegend=True,
+                legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5),
+                title=dict(text=f"Skill Profile Progression", x=0.5, xanchor='center')
             )
-            st.plotly_chart(fig_radar, width='stretch')
+            st.plotly_chart(fig_radar, use_container_width=True)
 
         # --- Statistical Trends ---
         st.header("📈 Seasonal Progression")
