@@ -128,7 +128,7 @@ def get_development_feedback(row):
 
         if row['E%'] > 5:
             feedback.append(("🚫 Error Reduction", 
-                             f"Error % is {row['E%']:.1f}%. Focus on consistent mechanics and situational awareness to reduce errors. Be sure to actively communicate with your teammates!"))
+                             f"Error rate is {row['E%']:.1f}%. Focus on consistent mechanics and situational awareness to reduce errors. Be sure to actively communicate with your teammates!"))
 
     # --- Pitching Feedback ---
     if row['IP'] > 5:
