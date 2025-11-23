@@ -103,12 +103,12 @@ def get_development_feedback(row):
         # Plate Discipline
         if row['QAB%'] < 40:
             feedback.append(("⚠️ Quality At-Bats", 
-                             f"QAB% is {row['QAB%']}%. Regardless of whether your batting average shows it, you can improve your Quality At-Bats percentage by extending at-bats, fouling off tough pitches, and drawing more walks. Take a deep breath and lock in one pitch at a time."))
+                             f"Quality At-Bats percentage is {row['QAB%']}%. Regardless of whether your batting average shows it, you can improve your Quality At-Bats percentage by extending at-bats, fouling off tough pitches, and drawing more walks. Take a deep breath and lock in one pitch at a time."))
         
         # Power vs Contact
         if row['SLG'] < row['OBP'] and row['AVG'] > .250:
              feedback.append(("ℹ️ Power Potential", 
-                              "Good on-base skills, but Slugging Percentage is lower than On-Base Percentage, indicating that your walks are contributing more heavily towards your On-Base Percentage. Focus on keeping hands back to create a solid swing sooner while maintaining head discipline to see the ball."))
+                              "Good on-base skills, but Slugging Percentage is lower than On-Base Percentage, indicating that your walks are contributing disproportionately towards your On-Base Percentage. Focus on keeping hands back to create a solid swing sooner while maintaining head discipline to see the ball."))
 
         # Clutch
         if 'BA/RISP' in row and row['BA/RISP'] < (row['AVG'] - 0.050):
@@ -135,7 +135,7 @@ def get_development_feedback(row):
         if row['BB'] > row['IP']: # More than 1 walk per inning
             feedback.append(("🎯 Pitching Control", 
                              f"Walking {row['BB']/row['IP']:.1f} batters per inning. Bullpen sessions should focus strictly on fastball command."))
-        if row['WHIP'] > 1.8:
+        if row['WHIP'] > 3.0:
             feedback.append(("🛡️ Run Prevention", 
                              "Walks plus Hits per Inning Pitched (WHIP) is high. Focus on one batter at a time and don't be afraid to put the ball into play. Trust your defense to make the play!"))
 
@@ -186,7 +186,7 @@ else:
     # VIEW 1: TEAM SUMMARY
     # ==========================================
     if view_mode == "Team Summary":
-        st.header(f"Team Stats Overview: {latest_season}")
+        st.header(f"Gamechanger Team Stats Overview: {latest_season}")
         
         # Get Data for latest season
         season_df = df[df['Season'] == latest_season].copy()
