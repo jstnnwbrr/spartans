@@ -486,9 +486,9 @@ else:
             st.plotly_chart(fig_chances, use_container_width=True)
 
             # Add visual for percentage-based statistics
-            fig_errors = px.bar(player_stats, x='Season', y=['FPCT', 'E', 'E%'], 
-                              barmode='group', title="Fielding Percentage & Errors")
-            fig_errors.update_yaxes(title_text="Fielding Percentage & Errors")
+            fig_errors = px.bar(player_stats, x='Season', y=['FPCT', 'E%'], 
+                              barmode='group', title="Fielding & Error Percentage")
+            fig_errors.update_yaxes(title_text="Fielding & Error Percentage")
             st.plotly_chart(fig_errors, width='stretch')
 
             st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")
