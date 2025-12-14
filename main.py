@@ -469,13 +469,25 @@ else:
 
         # Tab 2: Fielding
         with tab_objs[1]:
-            fig_chances = px.line(player_stats, x='Season', y=['TC', 'A', 'PO'], 
-                              markers=True, title="Hitting Metrics Over Time")
-            fig_bat.update_yaxes(title_text="Fielding Chances & Plays Made")
-            st.plotly_chart(fig_chances, width='stretch')
-            
+            fig_chances = make_subplots(specs=[[{"secondary_y": True}]])
+
+            # Add traces for Fielding Chances & Plays Made
+            fig_chances.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats['TC'], name="Total Chances"), secondary_y=False)
+            fig_chances.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats['PO'], name="Putouts"), secondary_y=False)
+            fig_chances.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats['A'], name="Assists"), secondary_y=True)
+            fig_chances.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats['E'], name="Errors"), secondary_y=True)
+
+            # Update layout
+            fig_chances.update_layout(title_text="Fielding Stats Progression")
+            fig_chances.update_xaxes(title_text="Season")
+            fig_chances.update_yaxes(title_text="Fielding Chances & Plays Made", secondary_y=False)
+            fig_chances.update_yaxes(title_text="Assists & Errors", secondary_y=True)
+
+            st.plotly_chart(fig_chances, use_container_width=True)
+
+            # Add visual for percentage-based statistics
             fig_errors = px.bar(player_stats, x='Season', y=['FPCT', 'E', 'E%'], 
-                              barmode='group', title="Discipline: Quality At-Bats % vs Strikeout %")
+                              barmode='group', title="Fielding Percentage & Errors")
             fig_errors.update_yaxes(title_text="Fielding Percentage & Errors")
             st.plotly_chart(fig_errors, width='stretch')
 
