@@ -466,13 +466,10 @@ else:
 
         # Tab 2: Fielding
         with tab_objs[1]:
-            if player_stats['IP'].sum() > 0:
-                fig_field = px.line(player_stats, x='Season', y=['TC', 'A', 'PO', 'FPCT', 'E', 'E%'], 
-                                    markers=True, title="Fielding Percentage & Error % Progression")
-                st.plotly_chart(fig_field, width='stretch')
-                st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")
-            else:
-                st.write("No fielding stats available for this player.")
+            fig_field = px.line(player_stats, x='Season', y=['TC', 'A', 'PO', 'FPCT', 'E', 'E%'], 
+                                markers=True, title="Fielding Percentage & Error % Progression")
+            st.plotly_chart(fig_field, width='stretch')
+            st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")
 
         # Tab 3: Pitching
         with tab_objs[2]:
