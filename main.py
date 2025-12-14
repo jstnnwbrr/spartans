@@ -100,7 +100,7 @@ def get_development_feedback(row):
         # Contact Logic
         if row['SO%'] > 25:
             feedback.append(("⚠️ High Strikeout Rate", 
-                             f"Strikeout rate is {row['SO']/row['PA']:.1%}. Focus on head discipline, starting with hands back, and shortening the swing."))
+                             f"Strikeout rate is {row['SO']/row['PA']:.1%}. Focus on head discipline, starting loaded with hands back, and don't be too picky when you have two strikes against you."))
         
         # Plate Discipline
         if row['QAB%'] < 40:
@@ -110,7 +110,7 @@ def get_development_feedback(row):
         # Power vs Contact
         if row['SLG'] < row['OBP'] and row['AVG'] > .250:
              feedback.append(("ℹ️ Power Potential", 
-                              "Good on-base skills, but Slugging Percentage is lower than On-Base Percentage, indicating that your walks are contributing disproportionately towards your On-Base Percentage. Focus on keeping hands back to create a solid swing sooner while maintaining head discipline to see the ball."))
+                              "Good on-base skills, but Slugging Percentage is lower than On-Base Percentage, indicating that your walks are significantly contributing to your On-Base Percentage."))
 
         # Clutch
         if 'BA/RISP' in row and row['BA/RISP'] < (row['AVG'] - 0.050):
@@ -120,13 +120,13 @@ def get_development_feedback(row):
         # Overly Cautious at the Plate
         if row['K-L'] > (row['PA'] * 0.07): # More than 7% strikeouts looking
             feedback.append(("🔍 Overly Cautious at the Plate", 
-                             f"Strikeouts Looking (K-L) rate is {row['K-L']/row['PA']:.1%}. Remember your technique, but start taking a few chances! If you're already striking out looking, how much worse could strikeout swinging be?"))
+                             f"Strikeouts Looking (K-L) rate is {row['K-L']/row['PA']:.1%}. Focus on executing a disciplined swing and don't be too picky when you have two strikes against you."))
 
     # --- Fielding Feedback ---
     if row['TC'] > 50: # Only generate if enough chances
         if row['FPCT'] < 0.850:
             feedback.append(("🛡️ Fielding Fundamentals", 
-                             f"Fielding Percentage is {row['FPCT']:.3f}. Emphasize footwork, glove work, throwing accuracy, and follow-through during practice. Once you field the ball, look up and establish eye contact with your target as early as possible and well before the ball leaves your hand."))
+                             f"Fielding Percentage is {row['FPCT']:.3f}. Emphasize footwork, glove work, throwing accuracy, and follow-through on your throw during practice. Once you field the ball, look up and establish eye contact with your target as early as possible and well before the ball leaves your hand."))
 
         if row['E%'] > .05:
             feedback.append(("🚫 Error Reduction", 
@@ -188,7 +188,7 @@ else:
     # VIEW 1: TEAM SUMMARY
     # ==========================================
     if view_mode == "Team Summary":
-        st.header(f"Gamechanger Team Stats Overview: {latest_season}")
+        st.header(f"Team Stats Overview: {latest_season}")
         
         # Get Data for latest season
         season_df = df[df['Season'] == latest_season].copy()
