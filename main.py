@@ -78,7 +78,7 @@ def load_data():
                 df['PBIC'] = df.apply(lambda x: (x['PB'] / x['INN_Catch']) if x['INN_Catch'] > 0 else 0, axis=1)
 
                 # Errors per Total Chances (E%)
-                df['E%'] = df.apply(lambda x: (x['E'] / (x['E'] + x.get('A', 0) + x.get('PO', 0)) * 100) if (x['E'] + x.get('A', 0) + x.get('PO', 0)) > 0 else 0, axis=1)
+                df['E%'] = df.apply(lambda x: (x['E'] / (x['E'] + x.get('A', 0) + x.get('PO', 0))) if (x['E'] + x.get('A', 0) + x.get('PO', 0)) > 0 else 0.0, axis=1)
 
                 # Filter out empty rows or footer info
                 df = df[df['First'].notna()]
@@ -128,9 +128,9 @@ def get_development_feedback(row):
             feedback.append(("🛡️ Fielding Fundamentals", 
                              f"Fielding Percentage is {row['FPCT']:.3f}. Emphasize footwork, glove work, throwing accuracy, and follow-through during practice. Once you field the ball, look up and establish eye contact with your target as early as possible and well before the ball leaves your hand."))
 
-        if row['E%'] > 5:
+        if row['E%'] > .05:
             feedback.append(("🚫 Error Reduction", 
-                             f"Error rate is {row['E%']:.1f}%. Focus on consistent mechanics and situational awareness to reduce errors. Be sure to actively communicate with your teammates!"))
+                             f"Error rate is {row['E%']:.2f}. Focus on consistent mechanics and situational awareness to reduce errors. Be sure to actively communicate with your teammates!"))
 
     # --- Pitching Feedback ---
     if row['IP'] > 5:
@@ -214,7 +214,7 @@ else:
             display_field = [c for c in field_cols if c in season_df.columns]
 
             st.dataframe(
-                season_df[display_field].sort_values(by='FPCT', ascending=False).set_index('Full Name').style.format({"TC": "{:.0f}", "A": "{:.0f}", "PO": "{:.0f}", "FPCT": "{:.3f}", "E": "{:.0f}", "E%": "{:.1f}%"}),
+                season_df[display_field].sort_values(by='FPCT', ascending=False).set_index('Full Name').style.format({"TC": "{:.0f}", "A": "{:.0f}", "PO": "{:.0f}", "FPCT": "{:.3f}", "E": "{:.0f}", "E%": "{:.2f}"}),
                 width='stretch', height=500
             )
             st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")    
