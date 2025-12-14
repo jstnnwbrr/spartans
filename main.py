@@ -471,8 +471,8 @@ else:
         with tab_objs[1]:
             fig_field = make_subplots(specs=[[{"secondary_y": True}]])
 
-            fig_field.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats[['TC', 'A', 'PO']], name="Fielding Chances & Plays Made"), secondary_y=False, markers=True)
-            fig_field.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats[['FPCT', 'E', 'E%']], name="Fielding Percentage & Errors"), secondary_y=True, markerts=True)
+            fig_field.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats[['TC', 'A', 'PO']], name="Fielding Chances & Plays Made"), secondary_y=False,)
+            fig_field.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats[['FPCT', 'E', 'E%']], name="Fielding Percentage & Errors"), secondary_y=True,)
 
             fig_field.update_layout(title_text="Fielding Stats Progression")
             fig_field.update_xaxes(title_text="Season")
