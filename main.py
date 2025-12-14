@@ -475,7 +475,10 @@ else:
             fig_field.add_trace(px.line(x=player_stats['Season'], y=player_stats[['FPCT', 'E', 'E%']], name="Fielding Percentage & Errors"), secondary_y=True, markerts=True)
 
             fig_field.update_layout(title_text="Fielding Stats Progression")
-            #fig_field.update_yaxes(title_text="Percentage (%)")
+            fig_field.update_xaxes(title_text="Season")
+            fig_field.update_yaxes(title_text="Fielding Chances & Plays Made", secondary_y=False)
+            fig_field.update_yaxes(title_text="Fielding Percentage & Errors", secondary_y=True)
+
             st.plotly_chart(fig_field, width='stretch')
 
             st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")
