@@ -447,7 +447,7 @@ else:
 
         # --- Statistical Trends ---
         st.header("📈 Seasonal Progression")
-        tabs = ["Batting Trends", "Fielding Trends", "Pitching Trends", "Full Stats"]
+        tabs = ["Batting Trends", "Fielding Trends", "Pitching Trends", "Catching Trends", "Full Stats"]
         
         tab_objs = st.tabs(tabs)
 
