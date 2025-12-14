@@ -456,7 +456,7 @@ else:
         # Tab 1: Batting
         with tab_objs[0]:
             fig_bat = px.line(player_stats, x='Season', y=['AVG', 'OBP', 'OPS', 'SLG'], 
-                              markers=True, title="Hitting Metrics Over Time")
+                              markers=True, title="Batting Stats Progression")
             fig_bat.update_yaxes(title_text="Percentage (%)")
             st.plotly_chart(fig_bat, width='stretch')
             
