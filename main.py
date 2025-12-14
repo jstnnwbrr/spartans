@@ -447,13 +447,7 @@ else:
 
         # --- Statistical Trends ---
         st.header("📈 Seasonal Progression")
-        
-        # Check if player has catching stats to determine tabs
-        has_catching = player_stats['INN_Catch'].sum() > 0
-        tabs = ["Batting Trends", "Pitching Trends"]
-        if has_catching:
-            tabs.append("Catching Trends")
-        tabs.append("Raw Data")
+        tabs = ["Batting Trends", "Fielding Trends", "Pitching Trends", "Full Stats"]
         
         tab_objs = st.tabs(tabs)
 
@@ -491,8 +485,8 @@ else:
                 st.write("No pitching stats available for this player.")
 
         # Tab 4: Catching
-        if has_catching:
-            with tab_objs[3]:
+        with tab_objs[3]:
+            if player_stats['INN_Catch'].sum() > 0:
                 st.subheader("🛡️ Behind the Dish")
                 c1, c2, c3 = st.columns(3)
                 total_inn = player_stats['INN_Catch'].sum()
@@ -509,10 +503,12 @@ else:
                 c3.metric("Caught Stealing %", f"{career_cs_pct:.1f}%")
                 
                 fig_catch = px.bar(player_stats, x='Season', y=['PB', 'SB_Catch', 'CS_Catch'],
-                                   barmode='group', title="Defensive Breakdown (Count)")
+                                    barmode='group', title="Defensive Breakdown (Count)")
                 st.plotly_chart(fig_catch, width='stretch')
                 st.info("PB=Passed Balls Allowed,  SB_Catch=Stolen Bases Allowed,  CS_Catch=Caught Stealing")
-        
-        # Raw Data Tab
-        with tab_objs[-1]:
+            else:
+                st.write("No catching stats available for this player.")
+
+        # Tab 5: Full Stats
+        with tab_objs[4]:
             st.dataframe(player_stats)
