@@ -4,6 +4,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import os
 
+from plotly.subplots import make_subplots
+
 # --- Configuration ---
 st.set_page_config(page_title="NM Spartans", layout="wide")
 
@@ -462,13 +464,20 @@ else:
                               barmode='group', title="Discipline: Quality At-Bats % vs Strikeout %")
             fig_disc.update_yaxes(title_text="Percentage (%)")
             st.plotly_chart(fig_disc, width='stretch')
+
             st.info("AVG=Batting Average,  OBP=On-base Percentage,  OPS=On-base Plus Slugging,  SLG=Slugging Percentage,  AB%=Quality At-Bats,  SO%=Strikeout %")
 
         # Tab 2: Fielding
         with tab_objs[1]:
-            fig_field = px.line(player_stats, x='Season', y=['TC', 'A', 'PO', 'FPCT', 'E', 'E%'], 
-                                markers=True, title="Fielding Percentage & Error % Progression")
+            fig_field = make_subplots(specs=[[{"secondary_y": True}]])
+
+            fig_field.add_trace(px.line(x=player_stats['Season'], y=player_stats[['TC', 'A', 'PO']], name="Fielding Chances & Plays Made"), secondary_y=False, markers=True)
+            fig_field.add_trace(px.line(x=player_stats['Season'], y=player_stats[['FPCT', 'E', 'E%']], name="Fielding Percentage & Errors"), secondary_y=True, markerts=True)
+
+            fig_field.update_layout(title_text="Fielding Stats Progression")
+            #fig_field.update_yaxes(title_text="Percentage (%)")
             st.plotly_chart(fig_field, width='stretch')
+
             st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")
 
         # Tab 3: Pitching
