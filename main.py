@@ -217,7 +217,7 @@ else:
                 season_df[display_field].sort_values(by='FPCT', ascending=False).set_index('Full Name').style.format({"TC": "{:.0f}", "A": "{:.0f}", "PO": "{:.0f}", "FPCT": "{:.3f}", "E": "{:.0f}", "E%": "{:.2f}"}),
                 width='stretch', height=500
             )
-            st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")    
+            st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Error Percentage")    
             
             # --- 4. Pitching ---
             st.divider()
@@ -469,29 +469,17 @@ else:
 
         # Tab 2: Fielding
         with tab_objs[1]:
-            fig_chances = make_subplots(specs=[[{"secondary_y": True}]])
+            fig_chances = px.line(player_stats, x='Season', y=['TC', 'PO', 'A'], 
+                              markers=True, title="Fielding Stats Progression")
+            fig_chances.update_yaxes(title_text="Fielding Chances & Plays Made")
+            st.plotly_chart(fig_chances, width='stretch')
 
-            # Add traces for Fielding Chances & Plays Made
-            fig_chances.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats['TC'], name="Total Chances"), secondary_y=False)
-            fig_chances.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats['PO'], name="Putouts"), secondary_y=False)
-            fig_chances.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats['A'], name="Assists"), secondary_y=True)
-            fig_chances.add_trace(go.Scatter(x=player_stats['Season'], y=player_stats['E'], name="Errors"), secondary_y=True)
-
-            # Update layout
-            fig_chances.update_layout(title_text="Fielding Stats Progression")
-            fig_chances.update_xaxes(title_text="Season")
-            fig_chances.update_yaxes(title_text="Fielding Chances & Plays Made", secondary_y=False)
-            fig_chances.update_yaxes(title_text="Assists & Errors", secondary_y=True)
-
-            st.plotly_chart(fig_chances, use_container_width=True)
-
-            # Add visual for percentage-based statistics
             fig_errors = px.bar(player_stats, x='Season', y=['FPCT', 'E%'], 
                               barmode='group', title="Fielding & Error Percentage")
             fig_errors.update_yaxes(title_text="Fielding & Error Percentage")
             st.plotly_chart(fig_errors, width='stretch')
 
-            st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E=Errors,  E%=Errors per Total Chances")
+            st.info("TC=Total Chances,  A=Assists,  PO=Putouts,  FPCT=Fielding Percentage,  E%=Error Percentage")
 
         # Tab 3: Pitching
         with tab_objs[2]:
