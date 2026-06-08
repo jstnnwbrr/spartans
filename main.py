@@ -16,7 +16,8 @@ def load_data():
     files = {
         "NM Spartans 11U Fall 2024": "NM Spartans 11U Fall 2024 Stats.csv",
         "NM Spartans 11U Spring 2025": "NM Spartans 11U Spring 2025 Stats.csv",
-        "NM Spartans 12U Fall 2025": "NM Spartans 12U Fall 2025 Stats.csv"
+        "NM Spartans 12U Fall 2025": "NM Spartans 12U Fall 2025 Stats.csv",
+        "NM Spartans 12U Spring 2026": "NM Spartans 12U Spring 2026 Stats.csv"
     }
     
     combined_data = []
@@ -179,7 +180,7 @@ if df.empty:
     st.warning("No data found. Please ensure the CSV files are in the same directory as this script.")
 else:
     # Determine the most recent season dynamically
-    latest_season = "NM Spartans 12U Fall 2025"
+    latest_season = "NM Spartans 12U Spring 2026"
     
     # --- View Selection ---
     view_mode = st.sidebar.radio("Select View", ["Team Summary", "Player Analysis"])
